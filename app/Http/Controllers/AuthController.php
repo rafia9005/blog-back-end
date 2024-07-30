@@ -2,26 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserRegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(UserLoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|string',
-            'password' => 'required|string|min:8'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                "error" => $validator->errors()
-            ]);
-        }
-
         $cr = $request->only('email', 'password');
 
         if (!Auth::attempt($cr)) {
@@ -42,18 +33,8 @@ class AuthController extends Controller
             "type" => "Bearer",
         ]);
     }
-    public function register(Request $request)
+    public function register(UserRegisterRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
-        }
-
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -62,9 +43,6 @@ class AuthController extends Controller
 
         $user->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User successfully registered',
-        ], 201);
+        return (new UserResource($user))->response()->setStatusCode(201);
     }
 }
