@@ -7,7 +7,9 @@ use App\Http\Requests\UserRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -24,14 +26,13 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
-
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             "status" => true,
             "token" => $token,
-            "type" => "Bearer",
-        ]);
+            "type" => "Bearer"
+        ], 200);
     }
     public function register(UserRegisterRequest $request): JsonResponse
     {
@@ -44,5 +45,16 @@ class AuthController extends Controller
         $user->save();
 
         return (new UserResource($user))->response()->setStatusCode(201);
+    }
+    public function logout(Request $request)
+    {
+        $acces_token = $request->bearerToken();
+        $token = PersonalAccessToken::findToken($acces_token);
+        $token->delete();
+
+        return response()->json([
+            'status' => 'succes',
+            'message' => 'Logout is succes!'
+        ]);
     }
 }

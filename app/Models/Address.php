@@ -4,22 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Address extends Model
 {
     use HasFactory;
+
     protected $table = "addresses";
     protected $fillable = [
-        "streat",
-        "city",
-        "province",
-        "country",
-        "postal_code"
+        'line_1',
+        'line_2',
+        'city',
+        'state',
+        'postal_code',
+        'country',
+        'user_id'
     ];
 
-    public function contacts(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(Contact::class, "contact_id", "id");
+        return $this->belongsTo(User::class);
     }
 }

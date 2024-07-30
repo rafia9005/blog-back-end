@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
 {
-    public function index()
+    public function get()
     {
         $posts = Posts::with('Author:id,name,email')->get();
         if ($posts->isEmpty()) {
@@ -23,7 +23,7 @@ class PostsController extends Controller
         return PostsResource::collection($posts);
     }
 
-    public function show($id)
+    public function getById($id)
     {
         $posts = Posts::with('Author:id,name,email')->findOrFail($id);
 

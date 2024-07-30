@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PostsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*route for auth login & register*/
@@ -9,11 +12,12 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function () {
     Route::post("/login", [AuthController::class, 'login']);
     Route::post("/register", [AuthController::class, 'register']);
+    Route::get("/logout", [AuthController::class, 'logout']);
 });
 
 Route::prefix("posts")->group(function () {
-    Route::get("/", [PostsController::class, 'index']);
-    Route::get("/{id}", [PostsController::class, 'show']);
+    Route::get("/", [PostsController::class, 'get']);
+    Route::get("/{id}", [PostsController::class, 'getById']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -23,9 +27,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch("/{id}", [PostsController::class, 'update']);
         Route::delete("/{id}", [PostsController::class, 'delete']);
     });
-
+    Route::get("/users", [UserController::class, 'get']);
     # she profile users
-    Route::get("/profile/me", function () {
-        return auth()->user();
+    Route::prefix('profile')->group(function () {
+        Route::get("/", [UserController::class, 'profile']);
+        Route::post("/address", [AddressController::class, 'create']);
     });
 });
